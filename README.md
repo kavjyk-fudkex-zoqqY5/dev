@@ -1,15 +1,84 @@
-# What is this?
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siri-like Personal Voice Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Siri-like Personal Voice Assistant</h1>
+  <button onclick="startListening()">Activate Assistant</button>
+  <p id="output"></p>
 
-The github.dev web-based editor is a lightweight editing experience that runs entirely in your browser. You can navigate files and source code repositories from GitHub, and make and commit code changes.
+  <script>
+    const output = document.getElementById('output');
 
-There are two ways to go directly to a VS Code environment in your browser and start coding:
+    // Speak function using speech synthesis
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    }
 
-* Press the . key on any repository or pull request.
-* Swap `.com` with `.dev` in the URL. For example, this repo https://github.com/github/dev becomes http://github.dev/github/dev
+    // Start listening for voice commands
+    function startListening() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-Preview the gif below to get a quick demo of github.dev in action.
+      speak("Hello, I am your voice assistant. How can I help you?");
+      recognition.start();
 
-![github dev](https://user-images.githubusercontent.com/856858/130119109-4769f2d7-9027-4bc4-a38c-10f297499e8f.gif)
+      recognition.onresult = (event) => {
+        const command = event.results[0][0].transcript.toLowerCase();
+        output.textContent = `You said: "${command}"`;
+        handleCommand(command);
+      };
 
-# Why?
-It’s a quick way to edit and navigate code. It's especially useful if you want to edit multiple files at a time or take advantage of all the powerful code editing features of Visual Studio Code when making a quick change. For more information, see our [documentation](https://github.co/codespaces-editor-help).
+      recognition.onerror = () => {
+        speak("Sorry, I couldn't hear you. Please try again.");
+      };
+    }
+
+    // Handle voice commands
+    function handleCommand(command) {
+      if (command.includes('time')) {
+        const currentTime = new Date().toLocaleTimeString();
+        speak(`The current time is ${currentTime}`);
+      } else if (command.includes('weather')) {
+        speak("Opening the weather forecast.");
+        window.open('https://www.weather.com');
+      } else if (command.includes('search for')) {
+        const query = command.replace('search for', '').trim();
+        speak(`Searching Google for ${query}`);
+        window.open(`https://www.google.com/search?q=${query}`);
+      } else if (command.includes('open youtube')) {
+        speak("Opening YouTube.");
+        window.open('https://www.youtube.com');
+      } else if (command.includes('your name')) {
+        speak("I am your personal assistant, similar to Siri.");
+      } else if (command.includes('goodbye')) {
+        speak("Goodbye! Have a wonderful day.");
+      } else {
+        speak("I'm not sure how to help with that.");
+      }
+    }
+  </script>
+</body>
+</html>
